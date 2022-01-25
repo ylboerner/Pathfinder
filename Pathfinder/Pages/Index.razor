@@ -1,0 +1,30 @@
+﻿@page "/"
+@using Hl7.FhirPath
+@using Hl7.Fhir.Serialization
+@using Hl7.Fhir.ElementModel
+@using Hl7.FhirPath.Expressions
+@inject ISnackbar Snackbar
+
+<PageTitle>Index</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudText Typo="Typo.body1" GutterBottom="true">A FHIRPath evaluation kit, powered by the Firely .NET SDK</MudText>
+        <MudTextField @bind-Value="FhirPathInput" OnInternalInputChanged="Callback" T="string" MaxLength="1000" HelperText="Enter your FHIRPath here" Immediate="true" Label="FHIRPath" Variant="Variant.Text"/>
+    </MudItem>
+    <MudItem xs="12">
+        <MudTextField @bind-Value="ResourceInput" OnInternalInputChanged="Callback" T="string" Label="Paste your resource as JSON or XML" Variant="Variant.Text" Text="" Lines="60" />
+    </MudItem>
+</MudGrid>
+
+@code
+{
+    private string? FhirPathInput { get; set; }
+
+    private string? ResourceInput { get; set; }
+    
+    private void Callback()
+    {
+        Snackbar.Add("Callback called");
+    }
+}
