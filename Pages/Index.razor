@@ -1,13 +1,44 @@
 ﻿@page "/"
+@using Hl7.FhirPath
+@using Hl7.Fhir.Serialization
+@using Hl7.Fhir.ElementModel
+@using Hl7.FhirPath.Expressions
 
 <PageTitle>Index</PageTitle>
 
 <MudGrid>
     <MudItem xs="12">
         <MudText Typo="Typo.body1" GutterBottom="true">A FHIRPath evaluation kit, powered by the Firely .NET SDK</MudText>
-        <MudTextField T="string" MaxLength="1000" HelperText="Enter your FHIRPath here" Immediate="true" Label="FHIRPath" Variant="Variant.Text"/>
+        <MudTextField @bind-Value="FhirPathInput" T="string" MaxLength="1000" HelperText="Enter your FHIRPath here" Immediate="true" Label="FHIRPath" Variant="Variant.Text"/>
     </MudItem>
     <MudItem xs="12">
-        <MudTextField T="string" Label="Paste your resource as JSON or XML" Variant="Variant.Text" Text="" Lines="60" />
+        <MudTextField @bind-Value="ResourceInput" OnInternalInputChanged=Callback T="string" Label="Paste your resource as JSON or XML" Variant="Variant.Text" Text="" Lines="60" />
     </MudItem>
 </MudGrid>
+
+@code
+{
+    private string? FhirPathInput { get; set; }
+
+    private string? ResourceInput { get; set; }
+
+    private FhirPathCompiler _compiler { get; set; }
+
+    private void Callback()
+    {
+        var symbolTable = new SymbolTable();
+        symbolTable.AddStandardFP();
+        _compiler = new FhirPathCompiler(symbolTable);
+        
+        var compiledFhirPath = _compiler.Compile(FhirPathInput);
+        
+        if (compiledFhirPath == null)
+        {
+            
+        }
+
+        var node = FhirJsonNode.Parse(ResourceInput);
+        var typedElement = node.ToTypedElement();
+        var result = compiledFhirPath(null, EvaluationContext.CreateDefault());
+    }
+}
