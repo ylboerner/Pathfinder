@@ -1,19 +1,20 @@
 ﻿@page "/"
-@using Hl7.FhirPath
-@using Hl7.Fhir.Serialization
-@using Hl7.Fhir.ElementModel
-@using Hl7.FhirPath.Expressions
-@inject ISnackbar Snackbar
+@using Pathfinder.Services
+@inject ISnackbar _snackbar
+@inject ICompilationService _compilationService
 
 <PageTitle>Index</PageTitle>
 
 <MudGrid>
     <MudItem xs="12">
         <MudText Typo="Typo.body1" GutterBottom="true">A FHIRPath evaluation kit, powered by the Firely .NET SDK</MudText>
-        <MudTextField @bind-Value="FhirPathInput" OnInternalInputChanged="Callback" T="string" MaxLength="1000" HelperText="Enter your FHIRPath here" Immediate="true" Label="FHIRPath" Variant="Variant.Text"/>
+        <MudTextField @bind-Value="FhirPathInput" TextChanged="OnInputChanged" T="string" MaxLength="1000" HelperText="Enter your FHIRPath here" Immediate="true" Label="FHIRPath" Variant="Variant.Text"/>
     </MudItem>
     <MudItem xs="12">
-        <MudTextField @bind-Value="ResourceInput" OnInternalInputChanged="Callback" T="string" Label="Paste your resource as JSON or XML" Variant="Variant.Text" Text="" Lines="60" />
+        <MudTextField @bind-Value="Output" T="string" Variant="Variant.Text" Lines="10"/>
+    </MudItem>
+    <MudItem xs="12">
+        <MudTextField @bind-Value="ResourceInput" TextChanged="OnInputChanged" T="string" Label="Paste your resource as JSON or XML" Variant="Variant.Text" Lines="30"/>
     </MudItem>
 </MudGrid>
 
@@ -23,8 +24,22 @@
 
     private string? ResourceInput { get; set; }
     
-    private void Callback()
+    private string? Output { get; set; }
+
+    private void OnInputChanged()
     {
-        Snackbar.Add("Callback called");
+        if (FhirPathInput == null)
+        {
+            Output = "FHIRPath input is empty.";
+            return;
+        }
+        
+        if (ResourceInput == null)
+        {
+            Output = "Resource input is empty.";
+            return;
+        }
+
+        Output = _compilationService.Compile(FhirPathInput, ResourceInput);
     }
 }
