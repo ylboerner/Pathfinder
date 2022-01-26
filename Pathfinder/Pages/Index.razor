@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Pathfinder.Services
+@using Pathfinder.Constants
 @inject ISnackbar _snackbar
 @inject ICompilationService _compilationService
 
@@ -20,9 +21,9 @@
 
 @code
 {
-    private string? FhirPathInput { get; set; }
+    private string? FhirPathInput { get; set; } = DefaultValues.FhirPath;
 
-    private string? ResourceInput { get; set; }
+    private string? ResourceInput { get; set; } = DefaultValues.Resource;
     
     private string? Output { get; set; }
 
