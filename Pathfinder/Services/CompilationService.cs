@@ -32,10 +32,19 @@ public class CompilationService: ICompilationService
         {
             return e.Message;
         }
+
+        ITypedElement typedElement;
         
         // Parse Input
-        var node = FhirJsonNode.Parse(resourceInput);
-        var typedElement = node.ToTypedElement();
+        try
+        {
+            var node = FhirJsonNode.Parse(resourceInput);
+            typedElement = node.ToTypedElement();
+        }
+        catch (Exception e)
+        {
+            return e.Message;
+        }
         
         // Compile FhirPath
         var result = _compiledFhirPath(typedElement, EvaluationContext.CreateDefault());
