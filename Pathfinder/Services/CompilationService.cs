@@ -59,8 +59,15 @@ public class CompilationService: ICompilationService
         {
             if (compilationResult.Value is not null)
             {
-                if (compilationResult.Value is string valueAsString)
-                    outputList.Add(valueAsString);
+                switch (compilationResult.Value)
+                {
+                    case string valueAsString:
+                        outputList.Add(valueAsString);
+                        break;
+                    case bool valueAsBoolean:
+                        outputList.Add(valueAsBoolean.ToString());
+                        break;
+                }
             }
             else
             {
