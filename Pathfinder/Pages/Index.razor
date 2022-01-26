@@ -8,14 +8,13 @@
 
 <MudGrid>
     <MudItem xs="12">
-        <MudText Typo="Typo.body1" GutterBottom="true">A FHIRPath evaluation kit, powered by the Firely .NET SDK</MudText>
         <MudTextField @bind-Value="FhirPathInput" TextChanged="OnInputChanged" T="string" MaxLength="1000" HelperText="Enter your FHIRPath here" Immediate="true" Label="FHIRPath" Variant="Variant.Text"/>
     </MudItem>
     <MudItem xs="12">
         <MudList Clickable="false" Dense="@false" DisableGutters="@false">
             @foreach (var output in OutputList)
             {
-                <MudListItem Text=@output />
+                <MudListItem Text=@output/>
             }
         </MudList>
     </MudItem>
