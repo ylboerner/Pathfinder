@@ -12,7 +12,12 @@
         <MudTextField @bind-Value="FhirPathInput" TextChanged="OnInputChanged" T="string" MaxLength="1000" HelperText="Enter your FHIRPath here" Immediate="true" Label="FHIRPath" Variant="Variant.Text"/>
     </MudItem>
     <MudItem xs="12">
-        <MudTextField @bind-Value="Output" T="string" Variant="Variant.Text" Lines="10"/>
+        <MudList Clickable="false" Dense="@false" DisableGutters="@false">
+            @foreach (var output in OutputList)
+            {
+                <MudListItem Text=@output />
+            }
+        </MudList>
     </MudItem>
     <MudItem xs="12">
         <MudTextField @bind-Value="ResourceInput" TextChanged="OnInputChanged" T="string" Label="Paste your resource as JSON" Variant="Variant.Text" Lines="30"/>
@@ -24,23 +29,24 @@
     private string? FhirPathInput { get; set; } = DefaultValues.FhirPath;
 
     private string? ResourceInput { get; set; } = DefaultValues.Resource;
-    
-    private string? Output { get; set; }
+
+    private IEnumerable<string> OutputList { get; set; } = new List<string>();
 
     private void OnInputChanged()
     {
-        if (FhirPathInput == null)
+        OutputList = new List<string>();
+        if (FhirPathInput is null or "")
         {
-            Output = "FHIRPath input is empty.";
+            OutputList = OutputList.Append("FHIRPath input is empty.");
             return;
         }
         
-        if (ResourceInput == null)
+        if (ResourceInput is null or "")
         {
-            Output = "Resource input is empty.";
+            OutputList = OutputList.Append("Resource input is empty.");
             return;
         }
 
-        Output = _compilationService.Compile(FhirPathInput, ResourceInput);
+        OutputList = _compilationService.Compile(FhirPathInput, ResourceInput);
     }
 }

@@ -7,8 +7,9 @@ namespace Pathfinder.Services;
 
 public interface ICompilationService
 {
-    public string Compile(string fhirPathInput, string resourceInput);
+    public IEnumerable<string> Compile(string fhirPathInput, string resourceInput);
 }
+
 public class CompilationService: ICompilationService
 {
     private readonly FhirPathCompiler _compiler;
@@ -21,8 +22,10 @@ public class CompilationService: ICompilationService
         _compiler = new FhirPathCompiler(symbolTable);
     }
         
-    public string Compile(string fhirPathInput, string resourceInput)
+    public IEnumerable<string> Compile(string fhirPathInput, string resourceInput)
     {
+        var outputList = new List<string>();
+        
         // Compile fhirPath
         try
         {
@@ -30,7 +33,8 @@ public class CompilationService: ICompilationService
         }
         catch (Exception e)
         {
-            return e.Message;
+            outputList.Add(e.Message);
+            return outputList;
         }
 
         ITypedElement typedElement;
@@ -43,28 +47,27 @@ public class CompilationService: ICompilationService
         }
         catch (Exception e)
         {
-            return e.Message;
+            outputList.Add(e.Message);
+            return outputList;
         }
         
         // Compile FhirPath
         var compilationResults = _compiledFhirPath(typedElement, EvaluationContext.CreateDefault()).ToList();
         
         // Generate output
-        var results = new List<string?>();
         foreach (var compilationResult in compilationResults)
         {
-            if (compilationResult.Value != null)
+            if (compilationResult.Value is not null)
             {
-                results.Add(compilationResult.Value as string);
+                if (compilationResult.Value is string valueAsString)
+                    outputList.Add(valueAsString);
             }
             else
             {
-                results.Add(compilationResult.ToJson());
+                outputList.Add(compilationResult.ToJson());
             }
         }
         
-        var output = String.Join(System.Environment.NewLine, results);
-
-        return output;
+        return outputList;
     }
 }
