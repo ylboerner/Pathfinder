@@ -47,8 +47,24 @@ public class CompilationService: ICompilationService
         }
         
         // Compile FhirPath
-        var result = _compiledFhirPath(typedElement, EvaluationContext.CreateDefault());
+        var compilationResults = _compiledFhirPath(typedElement, EvaluationContext.CreateDefault()).ToList();
         
-        return result.First().Value as string;
+        // Generate output
+        var results = new List<string?>();
+        foreach (var compilationResult in compilationResults)
+        {
+            if (compilationResult.Value != null)
+            {
+                results.Add(compilationResult.Value as string);
+            }
+            else
+            {
+                results.Add(compilationResult.ToJson());
+            }
+        }
+        
+        var output = String.Join(System.Environment.NewLine, results);
+
+        return output;
     }
 }
