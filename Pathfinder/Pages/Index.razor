@@ -6,20 +6,27 @@
 
 <PageTitle>Index</PageTitle>
 
-<MudGrid>
+<MudGrid Class="pt-4">
     <MudItem xs="12">
-        <MudTextField @bind-Value="FhirPathInput" TextChanged="OnInputChanged" T="string" MaxLength="1000" HelperText="Enter your FHIRPath here" Immediate="true" Label="FHIRPath" Variant="Variant.Text"/>
+        <MudPaper Class="flex-row pt-4 pb-4 pr-4 pl-4">
+            <MudTextField @bind-Value="FhirPathInput" TextChanged="OnInputChanged" T="string" MaxLength="1000" HelperText="Enter your FHIRPath here" Immediate="true" Variant="Variant.Text"/>
+        </MudPaper>
     </MudItem>
     <MudItem xs="12">
-        <MudList Clickable="false" Dense="@false" DisableGutters="@false">
-            @foreach (var output in OutputList)
-            {
-                <MudListItem Text=@output/>
-            }
-        </MudList>
+        <MudPaper Class="flex-row pt-4 pb-4 pr-4 pl-4">
+            <MudText Typo="Typo.h6" GutterBottom="true">Result</MudText>
+            <MudList Clickable="false" DisablePadding="true" Dense="@false" DisableGutters="@true">
+                @foreach (var output in Output)
+                {
+                    <MudListItem Text=@output/>
+                }
+            </MudList>
+        </MudPaper>
     </MudItem>
     <MudItem xs="12">
-        <MudTextField @bind-Value="ResourceInput" TextChanged="OnInputChanged" T="string" Label="Paste your resource as JSON" Variant="Variant.Text" Lines="30"/>
+        <MudPaper Class="flex-row pt-4 pb-4 pr-4 pl-4">
+            <MudTextField @bind-Value="ResourceInput" TextChanged="OnInputChanged" T="string" Label="Paste your resource as JSON" Variant="Variant.Text" Lines="30"/>
+        </MudPaper>
     </MudItem>
 </MudGrid>
 
@@ -29,23 +36,23 @@
 
     private string? ResourceInput { get; set; } = DefaultValues.Resource;
 
-    private IEnumerable<string> OutputList { get; set; } = new List<string>();
+    private IEnumerable<string> Output { get; set; } = new List<string>();
 
     private void OnInputChanged()
     {
-        OutputList = new List<string>();
+        Output = new List<string>();
         if (FhirPathInput is null or "")
         {
-            OutputList = OutputList.Append("FHIRPath input is empty.");
-            return;
-        }
-        
-        if (ResourceInput is null or "")
-        {
-            OutputList = OutputList.Append("Resource input is empty.");
+            Output = Output.Append("FHIRPath input is empty.");
             return;
         }
 
-        OutputList = _compilationService.Compile(FhirPathInput, ResourceInput);
+        if (ResourceInput is null or "")
+        {
+            Output = Output.Append("Resource input is empty.");
+            return;
+        }
+
+        Output = _compilationService.Compile(FhirPathInput, ResourceInput);
     }
 }
