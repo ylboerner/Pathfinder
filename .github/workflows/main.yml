@@ -9,11 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    
-    - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v1
+
+    - uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.1
+        dotnet-version: '6.0.x' # SDK Version to use; x will use the latest version of the 3.1 channel
 
     # publishes Blazor project to the release-folder
     - name: Publish .NET Core Project
