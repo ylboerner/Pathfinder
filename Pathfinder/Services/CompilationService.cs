@@ -2,6 +2,7 @@ using Hl7.Fhir.ElementModel;
 using Hl7.Fhir.Serialization;
 using Hl7.FhirPath;
 using Hl7.FhirPath.Expressions;
+using static Pathfinder.Constants.ApplicationConstants;
 
 namespace Pathfinder.Services;
 
@@ -55,19 +56,27 @@ public class CompilationService : ICompilationService
         var compilationResults = _compiledFhirPath(typedElement, EvaluationContext.CreateDefault()).ToList();
 
         // Generate output
-        foreach (var compilationResult in compilationResults)
-            if (compilationResult.Value is not null)
-                switch (compilationResult.Value)
-                {
-                    case string valueAsString:
-                        outputList.Add(valueAsString);
-                        break;
-                    case bool valueAsBoolean:
-                        outputList.Add(valueAsBoolean.ToString());
-                        break;
-                }
-            else
-                outputList.Add(compilationResult.ToJson());
+        if (compilationResults.Any())
+        {
+            foreach (var compilationResult in compilationResults)
+                if (compilationResult.Value is not null)
+                    switch (compilationResult.Value)
+                    {
+                        case string valueAsString:
+                            outputList.Add(valueAsString);
+                            break;
+                        case bool valueAsBoolean:
+                            outputList.Add(valueAsBoolean.ToString());
+                            break;
+                    }
+                else
+                    outputList.Add(compilationResult.ToJson());
+        }
+        else
+        {
+            outputList.Add(PathIsEmptyMessage);
+        }
+       
 
         return outputList;
     }

@@ -32,9 +32,9 @@
 
 @code
 {
-    private string? FhirPathInput { get; set; } = DefaultValues.FhirPath;
+    private string? FhirPathInput { get; set; } = ApplicationConstants.DefaultFhirPath;
 
-    private string? ResourceInput { get; set; } = DefaultValues.Resource;
+    private string? ResourceInput { get; set; } = ApplicationConstants.DefaultResource;
 
     private IEnumerable<string> Output { get; set; } = new List<string>();
 

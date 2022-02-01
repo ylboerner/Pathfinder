@@ -38,4 +38,14 @@ public class CompilationServiceTests
         result.Count.Should().Be(1);
         result.Should().Contain("True");
     }
+    
+    [Fact]
+    public void TestPathDoesNotExistOutput()
+    {
+        var fhirPath = new CompilationService();
+
+        var result = fhirPath.Compile("Patient.na", TestConstants.Resource).ToList();
+        result.Count.Should().Be(1);
+        result.Should().Contain(Constants.ApplicationConstants.PathIsEmptyMessage);
+    }
 }
