@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using Pathfinder.Services
 @using Pathfinder.Constants
+@using System.Text.RegularExpressions
 @inject ISnackbar _snackbar
 @inject ICompilationService _compilationService
 
@@ -14,18 +15,19 @@
     </MudItem>
     <MudItem xs="12">
         <MudPaper Class="flex-row pt-4 pb-4 pr-4 pl-4">
-            <MudText Typo="Typo.h6" GutterBottom="true">Result</MudText>
-            <MudList Clickable="false" DisablePadding="true" Dense="@false" DisableGutters="@true">
+            <MudList Clickable="false" DisablePadding="true" Dense="@true" DisableGutters="@true">
                 @foreach (var output in Output)
                 {
-                    <MudListItem Text=@output/>
+                    <MudListItem>
+                        <p style="white-space: pre-wrap;">@output</p>
+                    </MudListItem>
                 }
             </MudList>
         </MudPaper>
     </MudItem>
     <MudItem xs="12">
         <MudPaper Class="flex-row pt-4 pb-4 pr-4 pl-4">
-            <MudTextField @bind-Value="ResourceInput" TextChanged="OnInputChanged" T="string" Label="Paste your resource as JSON" Variant="Variant.Text" Lines="30"/>
+            <MudTextField @bind-Value="ResourceInput" TextChanged="OnInputChanged" T="string" Label="Paste your resource as JSON" Variant="Variant.Text" Immediate="true" Lines="30"/>
         </MudPaper>
     </MudItem>
 </MudGrid>
@@ -54,5 +56,19 @@
         }
 
         Output = _compilationService.Compile(FhirPathInput, ResourceInput);
+        Output = FormatOutput(Output);
+    }
+
+    private static IEnumerable<string> FormatOutput(IEnumerable<string> output)
+    {
+        // Remove quotes
+        var formattedOutput = output.Select(s => s.Replace("\"", string.Empty));
+        // Remove JSON formatting
+        formattedOutput = formattedOutput.Select(s => Regex.Replace(s, @"[{}[\],]", string.Empty, RegexOptions.Multiline));
+        // Remove blank lines
+        formattedOutput = formattedOutput.Select(s => Regex.Replace(s, @"^\s+$[\r\n]*", string.Empty, RegexOptions.Multiline));
+        // Remove leading whitespace
+        formattedOutput = formattedOutput.Select(s => s.TrimStart('\r', '\n'));
+        return formattedOutput;
     }
 }

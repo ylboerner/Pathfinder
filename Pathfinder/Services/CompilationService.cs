@@ -70,7 +70,18 @@ public class CompilationService : ICompilationService
                             break;
                     }
                 else
-                    outputList.Add(compilationResult.ToJson());
+                {
+                    var resultAsJson = compilationResult.ToJson(new FhirJsonSerializationSettings
+                    {
+                        Pretty = true,
+                        IgnoreUnknownElements = true
+                    });
+                    
+                    if (resultAsJson is not null)
+                    {
+                        outputList.Add(resultAsJson);
+                    }
+                }
         }
         else
         {
