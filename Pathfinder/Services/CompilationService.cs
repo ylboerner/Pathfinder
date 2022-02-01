@@ -10,7 +10,7 @@ public interface ICompilationService
     public IEnumerable<string> Compile(string fhirPathInput, string resourceInput);
 }
 
-public class CompilationService: ICompilationService
+public class CompilationService : ICompilationService
 {
     private readonly FhirPathCompiler _compiler;
     private CompiledExpression? _compiledFhirPath;
@@ -21,11 +21,11 @@ public class CompilationService: ICompilationService
         symbolTable.AddStandardFP();
         _compiler = new FhirPathCompiler(symbolTable);
     }
-        
+
     public IEnumerable<string> Compile(string fhirPathInput, string resourceInput)
     {
         var outputList = new List<string>();
-        
+
         // Compile fhirPath
         try
         {
@@ -38,7 +38,7 @@ public class CompilationService: ICompilationService
         }
 
         ITypedElement typedElement;
-        
+
         // Parse Input
         try
         {
@@ -50,15 +50,13 @@ public class CompilationService: ICompilationService
             outputList.Add(e.Message);
             return outputList;
         }
-        
+
         // Compile FhirPath
         var compilationResults = _compiledFhirPath(typedElement, EvaluationContext.CreateDefault()).ToList();
-        
+
         // Generate output
         foreach (var compilationResult in compilationResults)
-        {
             if (compilationResult.Value is not null)
-            {
                 switch (compilationResult.Value)
                 {
                     case string valueAsString:
@@ -68,13 +66,9 @@ public class CompilationService: ICompilationService
                         outputList.Add(valueAsBoolean.ToString());
                         break;
                 }
-            }
             else
-            {
                 outputList.Add(compilationResult.ToJson());
-            }
-        }
-        
+
         return outputList;
     }
 }
