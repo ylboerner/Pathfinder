@@ -15,9 +15,11 @@ public class CompilationService : ICompilationService
 {
     private readonly FhirPathCompiler _compiler;
     private CompiledExpression? _compiledFhirPath;
+    private readonly IParsingService _parsingService;
 
-    public CompilationService()
+    public CompilationService(IParsingService parsingService)
     {
+        _parsingService = parsingService;
         var symbolTable = new SymbolTable();
         symbolTable.AddStandardFP();
         _compiler = new FhirPathCompiler(symbolTable);
@@ -25,7 +27,7 @@ public class CompilationService : ICompilationService
 
     public IEnumerable<string> Compile(string fhirPathInput, string resourceInput)
     {
-        var outputList = new List<string>();
+        var output = new List<string>();
 
         // Compile fhirPath
         try
@@ -34,22 +36,16 @@ public class CompilationService : ICompilationService
         }
         catch (Exception e)
         {
-            outputList.Add(e.Message);
-            return outputList;
+            output.Add(e.Message);
+            return output;
         }
 
-        ITypedElement typedElement;
+        var (typedElement, outputList) = _parsingService.Parse(resourceInput, output);
+        output = outputList;
 
-        // Parse Input
-        try
+        if (typedElement is null)
         {
-            var node = FhirJsonNode.Parse(resourceInput);
-            typedElement = node.ToTypedElement();
-        }
-        catch (Exception e)
-        {
-            outputList.Add(e.Message);
-            return outputList;
+            return output;
         }
 
         // Compile FhirPath
@@ -63,10 +59,10 @@ public class CompilationService : ICompilationService
                     switch (compilationResult.Value)
                     {
                         case string valueAsString:
-                            outputList.Add(valueAsString);
+                            output.Add(valueAsString);
                             break;
                         case bool valueAsBoolean:
-                            outputList.Add(valueAsBoolean.ToString());
+                            output.Add(valueAsBoolean.ToString());
                             break;
                     }
                 else
@@ -79,16 +75,16 @@ public class CompilationService : ICompilationService
                     
                     if (resultAsJson is not null)
                     {
-                        outputList.Add(resultAsJson);
+                        output.Add(resultAsJson);
                     }
                 }
         }
         else
         {
-            outputList.Add(PathIsEmptyMessage);
+            output.Add(PathIsEmptyMessage);
         }
        
 
-        return outputList;
+        return output;
     }
 }
