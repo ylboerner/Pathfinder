@@ -45,9 +45,13 @@
     protected override void OnInitialized()
     {
         var uri = _navManager.ToAbsoluteUri(_navManager.Uri);
-        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("path", out var initialFhirPath))
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("fhirPath", out var initialFhirPath))
         {
             FhirPath = initialFhirPath;
+        }
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("instance", out var instance))
+        {
+            Resource = instance;
         }
     }
 
