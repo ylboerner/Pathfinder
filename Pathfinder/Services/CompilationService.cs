@@ -40,17 +40,22 @@ public class CompilationService : ICompilationService
             return output;
         }
 
-        var (typedElement, outputList) = _parsingService.Parse(resourceInput, output);
-        output = outputList;
-
+        var typedElement = _parsingService.Parse(resourceInput, output);
         if (typedElement is null)
         {
             return output;
         }
 
-        // Compile FhirPath
+        // Build expression
         var compilationResults = _compiledFhirPath(typedElement, EvaluationContext.CreateDefault()).ToList();
 
+        AddCompilationResultsToOutput(compilationResults, output);
+
+        return output;
+    }
+
+    private static void AddCompilationResultsToOutput(List<ITypedElement> compilationResults, List<string> output)
+    {
         // Generate output
         if (compilationResults.Any())
         {
@@ -72,7 +77,7 @@ public class CompilationService : ICompilationService
                         Pretty = true,
                         IgnoreUnknownElements = true
                     });
-                    
+
                     if (resultAsJson is not null)
                     {
                         output.Add(resultAsJson);
@@ -83,8 +88,5 @@ public class CompilationService : ICompilationService
         {
             output.Add(PathIsEmptyMessage);
         }
-       
-
-        return output;
     }
 }

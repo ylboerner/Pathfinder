@@ -5,23 +5,19 @@ namespace Pathfinder.Services;
 
 public interface IParsingService
 {
-    public (ITypedElement? typedElement, List<string> output) Parse(string fhirPathInput,
-        IEnumerable<string> outputList);
+    public ITypedElement? Parse(string fhirPathInput,
+        List<string> output);
 }
-
 
 public class ParsingService: IParsingService
 {
-    public (ITypedElement? typedElement, List<string> output) Parse(string input, IEnumerable<string> outputList)
+    public ITypedElement? Parse(string input, List<string> output)
     {
         ITypedElement? typedElement = null;
-        var output = outputList.ToList();
+        ISourceNode? node = null;
         
-        // Parse Input
         try
         {
-            ISourceNode? node = null;
-
             if (input.IsJson())
             {
                 node = FhirJsonNode.Parse(input);
@@ -33,18 +29,18 @@ public class ParsingService: IParsingService
             {
                 output.Add("Invalid input format");
             }
-            
-            if (node is not null)
-#pragma warning disable CS0618
-                typedElement = SourceNodeExtensions.ToTypedElement(node);
-#pragma warning restore CS0618
         }
         catch (Exception e)
         {
             output.ToList().Add(e.Message);
         }
+        
+        if (node is not null)
+#pragma warning disable CS0618
+            typedElement = SourceNodeExtensions.ToTypedElement(node);
+#pragma warning restore CS0618
 
-        return (typedElement, output);
+        return (typedElement);
     }
 }
 
